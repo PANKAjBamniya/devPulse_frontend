@@ -1,0 +1,143 @@
+@import "tailwindcss";
+
+
+/* 🌑 ROOT THEME VARIABLES */
+
+:root {
+    --bg-main: #0B0F14;
+    --bg-surface: #121826;
+    --bg-surface-hover: #1A2233;
+
+    --border-color: #1F2937;
+
+    --text-primary: #E5E7EB;
+    --text-secondary: #9CA3AF;
+    --text-muted: #6B7280;
+
+    --brand: #3B82F6;
+    --brand-hover: #2563EB;
+
+    --success: #22C55E;
+    --error: #EF4444;
+}
+
+
+/* 🌍 GLOBAL BASE STYLES */
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+
+/* 🧱 BACKGROUND CLASSES */
+
+.bg-app {
+    background-color: var(--bg-main);
+}
+
+.bg-card {
+    background-color: var(--bg-surface);
+}
+
+.bg-card-hover:hover {
+    background-color: var(--bg-surface-hover);
+}
+
+
+/* 🧾 TEXT CLASSES */
+
+.text-primary {
+    color: var(--text-primary);
+}
+
+.text-secondary {
+    color: var(--text-secondary);
+}
+
+.text-muted {
+    color: var(--text-muted);
+}
+
+
+/* 🔲 BORDER */
+
+.border-default {
+    border: 1px solid var(--border-color);
+}
+
+
+/* 🔵 BUTTONS */
+
+.btn-primary {
+    background-color: var(--brand);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+}
+
+.btn-primary:hover {
+    background-color: var(--brand-hover);
+}
+
+.btn-secondary {
+    background-color: var(--bg-surface);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    padding: 12px 20px;
+    border-radius: 12px;
+}
+
+
+/* 🏷️ STATUS BADGES */
+
+.badge-success {
+    color: var(--success);
+    background-color: rgba(34, 197, 94, 0.15);
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+}
+
+.badge-error {
+    color: var(--error);
+    background-color: rgba(239, 68, 68, 0.15);
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+}
+
+
+/* 📦 CARD */
+
+.card {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 16px;
+}
+
+
+/* ✨ UTILITIES */
+
+.center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.btn-danger {
+    background-color: var(--error);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-weight: 600;
+}
+
+.btn-danger:hover {
+    opacity: 0.9;
+}
