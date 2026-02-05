@@ -8,6 +8,11 @@ export const scheduleApi = apiSlice.injectEndpoints({
             providesTags: ["Schedule"],
         }),
 
+        getMyAllPost: builder.query({
+            query: () => "/posts/",
+            providesTags: ["Post"],
+        }),
+
         createSchedule: builder.mutation({
             query: (payload) => ({
                 url: "/schedule",
@@ -42,4 +47,5 @@ export const {
     useCreateScheduleMutation,
     useUpdateScheduleMutation,
     useToggleScheduleMutation,
+    useGetMyAllPostQuery
 } = scheduleApi

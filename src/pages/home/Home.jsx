@@ -8,6 +8,7 @@ import { useGetMyScheduleQuery } from "../../feature/api/scheduleApi";
 import { getCountdown, getNextPostDate } from "../../utils/scheduleHelpers";
 import Loader from "../../components/commn/Loader";
 import Hero from "../../components/commn/Hero";
+import AllPost from "../../components/ui/AllPost";
 
 const Home = () => {
 
@@ -26,7 +27,7 @@ const Home = () => {
         }
     }, []);
 
-    if (loading) {
+    if (loading || !user) {
         return <Loader />;
     }
 
@@ -60,39 +61,38 @@ const Home = () => {
                         T-{countdown}
                     </p>
                 </div>
-                <div className="bg-zinc-900 rounded-xl p-4 border border-zinc-800">
-                    <p className="text-xs text-gray-400 mb-2">ACTIVE CATEGORY</p>
+                <div className="bg-zinc-900 rounded-xl p-5 border border-zinc-800 space-y-3">
+                    {/* Header */}
+                    <div className="flex justify-between items-center">
+                        <p className="text-xs text-gray-400 tracking-wide">
+                            ACTIVE CATEGORY
+                        </p>
 
-                    <h4 className="font-semibold">
+                        <span className="text-[10px] px-2 py-1 rounded-full bg-blue-500/10 text-blue-400">
+                            {schedule?.frequency || "—"}
+                        </span>
+                    </div>
+
+                    {/* Category */}
+                    <h4 className="font-semibold text-lg text-white">
                         {schedule?.categories?.map((c) => c.name).join(", ") || "—"}
                     </h4>
 
-                    <p className="text-xs text-gray-400 mt-1">
-                        freq: {schedule?.frequency || "—"}
+                    {/* Description */}
+                    <p className="text-sm text-gray-400 leading-relaxed line-clamp-3">
+                        {schedule?.description || "No description provided"}
                     </p>
-                    {/* <p className="text-xs text-gray-400 mt-1">
-                        Des.: {schedule?.description || "..."}
-                    </p> */}
-                </div>
 
-            </div>
-
-            {/* ---------- PERFORMANCE ---------- */}
-            <div className="px-4 mt-8">
-                <div className="bg-zinc-900 rounded-xl p-5 border border-zinc-800">
-                    <div className="flex justify-between items-center">
-                        <p className="text-sm text-gray-400">WEEKLY PERFORMANCE</p>
-                        <span className="text-green-400 text-sm">+12%</span>
+                    {/* Footer */}
+                    <div className="pt-2 border-t border-zinc-800 text-xs text-gray-500">
+                        Timezone: {schedule?.timezone || "—"}
                     </div>
-
-                    <h2 className="text-3xl font-bold mt-2">
-                        1,240 <span className="text-sm font-normal text-gray-400">impressions</span>
-                    </h2>
-
-                    {/* Fake chart placeholder */}
-                    <div className="mt-4 h-24 bg-gradient-to-t from-blue-500/20 to-transparent rounded-lg" />
                 </div>
             </div>
+
+            <AllPost />
+
+
             {schedulePage && <Schedule setSchedulePage={setSchedulePage} />}
 
         </div>
