@@ -28,15 +28,9 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const logout = async () => {
-        await fetch("http://localhost:3000/api/logout", {
-            credentials: "include",
-        });
-        setUser(null);
-    };
 
     return (
-        <AuthContext.Provider value={{ user, loading, getUser, logout }}>
+        <AuthContext.Provider value={{ user, loading, getUser }}>
             {children}
         </AuthContext.Provider>
     );

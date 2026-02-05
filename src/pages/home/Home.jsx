@@ -1,16 +1,24 @@
 import { useAuth } from "../../context/authContext";
-import {
-    FiSearch,
-    FiBell,
-} from "react-icons/fi";
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import Header from "../../components/commn/Header";
+import Schedule from "../../components/ui/Schedule";
+import CategoryModel from "../../components/ui/CategoryModel";
+import { useGetMyScheduleQuery } from "../../feature/api/scheduleApi";
+import { getCountdown, getNextPostDate } from "../../utils/scheduleHelpers";
+import Loader from "../../components/commn/Loader";
+import Hero from "../../components/commn/Hero";
 
 const Home = () => {
 
-    const { user, loading, getUser, logout } = useAuth();
-    const navigate = useNavigate()
+    const { data: scheduleRes, isLoading: scheduleLoading } = useGetMyScheduleQuery()
+    const schedule = scheduleRes?.data
+
+    const nextPostDate = getNextPostDate(schedule)
+    const countdown = getCountdown(nextPostDate)
+
+    const { user, loading, getUser } = useAuth();
+    const [schedulePage, setSchedulePage] = useState(false)
 
     useEffect(() => {
         if (!user) {
@@ -19,98 +27,54 @@ const Home = () => {
     }, []);
 
     if (loading) {
-        return <div className="text-white">Loading...</div>;
+        return <Loader />;
     }
 
-    useEffect(() => {
-        if (!user) {
-            navigate("/login")
-        }
-    }, [])
+
 
     return (
-        <div className="min-h-screen bg-app text-white pb-24">
+        <div className="min-h-screen bg-app text-white pb-24 ">
+            {/*  HEADER  */}
+            <Header user={user} />
 
-            {/* ---------- HEADER ---------- */}
-            <div className="flex items-center justify-between px-4 pt-6">
-                <div className="flex items-center gap-3">
-                    <img
-                        src={user?.avatar}
-                        alt="avatar"
-                        className="w-10 h-10 rounded-full border border-zinc-700"
-                    />
-                    <div>
-                        <h1 className="text-lg font-semibold">Dashboard</h1>
-                        <p className="text-sm text-gray-400">
-                            Welcome back,{user?.name}
-                        </p>
-                    </div>
-                </div>
+            {/*  AUTOPILOT CARD  */}
+            <Hero setSchedulePage={setSchedulePage} schedule={schedule} />
 
-                <div className="flex gap-2">
-                    <button className="bg-zinc-800 p-4 rounded-lg">
-                        <FiSearch />
-                    </button>
-                    <button className="bg-zinc-800 p-4 rounded-lg">
-                        <FiBell />
-                    </button>
-                    <button onClick={logout} className="btn-danger">Logout</button>
-                </div>
-            </div>
-
-            {/* ---------- AUTOPILOT CARD ---------- */}
-            <div className="px-4 mt-6">
-                <div className="bg-gradient-to-br from-[#16202b] to-[#0f1722] rounded-2xl p-5 border border-zinc-800 relative overflow-hidden">
-
-                    <span className="absolute top-4 right-4 text-green-400 text-xs flex items-center gap-1">
-                        ● ACTIVE
-                    </span>
-
-                    <p className="text-xs text-gray-400 tracking-widest">
-                        AUTOMATION ENGINE
-                    </p>
-
-                    <h2 className="text-xl font-semibold mt-2">
-                        LinkedIn Auto-pilot
-                    </h2>
-
-                    <p className="text-sm text-gray-400 mt-1">
-                        Last run: 12 minutes ago
-                    </p>
-
-                    <button className="mt-4 bg-blue-600 px-5 py-2 rounded-lg text-sm font-medium">
-                        Manage
-                    </button>
-                </div>
-            </div>
 
             {/* ---------- OVERVIEW ---------- */}
-            <div className="px-4 mt-8">
-                <div className="flex justify-between items-center mb-3">
-                    <h3 className="font-semibold">Overview</h3>
-                    <span className="text-sm text-blue-400">View all</span>
+            <div className="px-4 mt-8 grid grid-cols-2 gap-5">
+                <div className="bg-zinc-900 rounded-xl p-4 border border-zinc-800">
+                    <p className="text-xs text-gray-400 mb-2">NEXT POST</p>
+
+                    <h4 className="font-semibold">
+                        {scheduleLoading || !nextPostDate
+                            ? "—"
+                            : nextPostDate.toLocaleString("en-IN", {
+                                weekday: "short",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                            })}
+                    </h4>
+
+                    <p className="text-sm text-blue-400 mt-1">
+                        T-{countdown}
+                    </p>
+                </div>
+                <div className="bg-zinc-900 rounded-xl p-4 border border-zinc-800">
+                    <p className="text-xs text-gray-400 mb-2">ACTIVE CATEGORY</p>
+
+                    <h4 className="font-semibold">
+                        {schedule?.categories?.map((c) => c.name).join(", ") || "—"}
+                    </h4>
+
+                    <p className="text-xs text-gray-400 mt-1">
+                        freq: {schedule?.frequency || "—"}
+                    </p>
+                    {/* <p className="text-xs text-gray-400 mt-1">
+                        Des.: {schedule?.description || "..."}
+                    </p> */}
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-
-                    {/* Next Post */}
-                    <div className="bg-zinc-900 rounded-xl p-4 border border-zinc-800">
-                        <p className="text-xs text-gray-400 mb-2">NEXT POST</p>
-                        <h4 className="font-semibold">Today, 4:00 PM</h4>
-                        <p className="text-sm text-blue-400 mt-1">
-                            T-02:45:10
-                        </p>
-                    </div>
-
-                    {/* Category */}
-                    <div className="bg-zinc-900 rounded-xl p-4 border border-zinc-800">
-                        <p className="text-xs text-gray-400 mb-2">ACTIVE CATEGORY</p>
-                        <h4 className="font-semibold">React & Web Perf</h4>
-                        <p className="text-xs text-gray-400 mt-1">
-                            tag: web-perf
-                        </p>
-                    </div>
-                </div>
             </div>
 
             {/* ---------- PERFORMANCE ---------- */}
@@ -129,7 +93,7 @@ const Home = () => {
                     <div className="mt-4 h-24 bg-gradient-to-t from-blue-500/20 to-transparent rounded-lg" />
                 </div>
             </div>
-
+            {schedulePage && <Schedule setSchedulePage={setSchedulePage} />}
 
         </div>
     );
