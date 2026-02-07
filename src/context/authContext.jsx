@@ -28,9 +28,22 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const logout = async () => {
+        try {
+            await fetch("http://localhost:3000/api/linkedin/logout", {
+                method: "POST",
+                credentials: "include",
+            });
+        } catch (err) {
+            console.error("Logout failed", err);
+        } finally {
+            setUser(null);
+        }
+    };
+
 
     return (
-        <AuthContext.Provider value={{ user, loading, getUser }}>
+        <AuthContext.Provider value={{ user, loading, getUser, logout }}>
             {children}
         </AuthContext.Provider>
     );

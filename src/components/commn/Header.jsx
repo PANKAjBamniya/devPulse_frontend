@@ -1,10 +1,18 @@
 import React, { useState } from 'react'
-import { AiFillProfile } from 'react-icons/ai'
 import { CgProfile } from 'react-icons/cg'
 import { FiBell, FiSearch, FiMoreVertical, FiMapPin, FiLogOut } from 'react-icons/fi'
+import { useAuth } from '../../context/authContext'
+import { useNavigate } from 'react-router-dom'
 
-const Header = ({ user }) => {
+const Header = () => {
+    const { user, logout } = useAuth();
     const [openMenu, setOpenMenu] = useState(false)
+    const navigate = useNavigate()
+
+    if (!user) {
+        navigate("/login")
+    }
+
 
     return (
         <div className="flex items-center justify-between px-4 pt-6 relative">
@@ -56,7 +64,7 @@ const Header = ({ user }) => {
                         <CgProfile />
                         <span>Porfile</span>
                     </button>
-                    <button className="w-full flex items-center gap-3 px-4 py-3 text-sm bg-red-500 hover:bg-red-700 transition">
+                    <button onClick={logout} className="w-full flex items-center gap-3 px-4 py-3 text-sm bg-red-500 hover:bg-red-700 transition">
                         <FiLogOut />
                         <span>Logout</span>
                     </button>

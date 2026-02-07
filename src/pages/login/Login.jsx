@@ -1,18 +1,39 @@
+import { useEffect } from "react";
 import logo from "../../assets/logo.png"
 import { LiaLinkedinIn } from 'react-icons/lia'
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/authContext";
+import Loader from "../../components/commn/Loader";
 
 
 const Login = () => {
+
+    const { user, loading } = useAuth();
+    const navigate = useNavigate()
 
     const handleLogin = () => {
         const params = new URLSearchParams({
             response_type: 'code',
             client_id: import.meta.env.VITE_LINKEDIN_CLIENT_ID,
             redirect_uri: 'http://localhost:3000/api/linkedin/callback',
-            scope: 'openid email profile',
+            scope: 'openid profile email w_member_social'
+
         })
 
         window.location.href = `https://www.linkedin.com/oauth/v2/authorization?${params}`
+    }
+
+
+    useEffect(() => {
+        if (!loading && user) {
+            navigate("/", { replace: true });
+        }
+    }, [user, loading, navigate]);
+
+
+
+    if (loading) {
+        return <Loader />
     }
 
     return (

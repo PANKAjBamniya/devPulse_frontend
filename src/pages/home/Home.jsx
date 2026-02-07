@@ -1,9 +1,8 @@
 import { useAuth } from "../../context/authContext";
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Header from "../../components/commn/Header";
 import Schedule from "../../components/ui/Schedule";
-import CategoryModel from "../../components/ui/CategoryModel";
 import { useGetMyScheduleQuery } from "../../feature/api/scheduleApi";
 import { getCountdown, getNextPostDate } from "../../utils/scheduleHelpers";
 import Loader from "../../components/commn/Loader";
@@ -18,11 +17,14 @@ const Home = () => {
     const nextPostDate = getNextPostDate(schedule)
     const countdown = getCountdown(nextPostDate)
 
+    const Navigate = useNavigate()
+
     const { user, loading, getUser } = useAuth();
     const [schedulePage, setSchedulePage] = useState(false)
 
     useEffect(() => {
         if (!user) {
+            Navigate("/login")
             getUser();
         }
     }, []);
@@ -30,7 +32,6 @@ const Home = () => {
     if (loading || !user) {
         return <Loader />;
     }
-
 
 
     return (
@@ -44,10 +45,10 @@ const Home = () => {
 
             {/* ---------- OVERVIEW ---------- */}
             <div className="px-4 mt-8 grid grid-cols-2 gap-5">
-                <div className="bg-zinc-900 rounded-xl p-4 border border-zinc-800">
+                <div className="bg-zinc-900 rounded-xl p-4 border border-zinc-800 ">
                     <p className="text-xs text-gray-400 mb-2">NEXT POST</p>
 
-                    <h4 className="font-semibold">
+                    <h4 className="font-semibold text-white">
                         {scheduleLoading || !nextPostDate
                             ? "—"
                             : nextPostDate.toLocaleString("en-IN", {
@@ -58,9 +59,10 @@ const Home = () => {
                     </h4>
 
                     <p className="text-sm text-blue-400 mt-1">
-                        T-{countdown}
+                        {countdown ? `T-${countdown}` : "—"}
                     </p>
                 </div>
+
                 <div className="bg-zinc-900 rounded-xl p-5 border border-zinc-800 space-y-3">
                     {/* Header */}
                     <div className="flex justify-between items-center">
