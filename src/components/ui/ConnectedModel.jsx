@@ -1,3 +1,4 @@
+import { useSelector } from "react-redux";
 import { platformMeta } from "../../utils/platformConfig";
 
 const ConnectedModel = ({
@@ -8,6 +9,8 @@ const ConnectedModel = ({
 
 
     if (!data) return null;
+    const userId = useSelector((state) => state.auth.user?._id);
+
 
     const {
         name,
@@ -20,7 +23,7 @@ const ConnectedModel = ({
 
     const handleContinue = () => {
         if (authType === "oauth" && typeof authUrl === "function") {
-            window.location.href = authUrl();
+            window.location.href = authUrl(userId);
             return;
         }
 

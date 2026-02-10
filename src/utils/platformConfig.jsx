@@ -38,8 +38,12 @@ export const platformMeta = {
         icon: FiLinkedin,
         color: "#2563EB",
         authType: "oauth",
-        authUrl: () => {
-            const state = crypto.randomUUID();
+        authUrl: (userId) => {
+            const state = JSON.stringify({
+                userId,
+                nonce: crypto.randomUUID(),
+            });
+
             sessionStorage.setItem("linkedin_oauth_state", state);
 
             const params = new URLSearchParams({
@@ -51,7 +55,7 @@ export const platformMeta = {
             });
 
             return `https://www.linkedin.com/oauth/v2/authorization?${params}`;
-        },
+        }
     },
 
     twitter: {

@@ -9,6 +9,8 @@ import logo from "../../assets/logo.png";
 
 import { useLoginMutation } from "../../feature/api/authApiSlice";
 import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
+import { useEffect } from "react";
 
 
 const loginSchema = z.object({
@@ -17,6 +19,7 @@ const loginSchema = z.object({
 });
 
 const Login = () => {
+    const user = useSelector((state) => state.auth.user);
     const navigate = useNavigate();
     const [login] = useLoginMutation();
 
@@ -40,6 +43,12 @@ const Login = () => {
             toast.error(err?.data?.message || "Login failed");
         }
     };
+
+    useEffect(() => {
+        if (user) {
+            navigate("/")
+        }
+    }, [user])
 
 
     return (

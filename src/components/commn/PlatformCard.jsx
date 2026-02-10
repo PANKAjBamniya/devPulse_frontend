@@ -82,7 +82,7 @@ const PlatformCard = ({
                         <p className="text-sm font-medium">{user.name}</p>
                     </div>
 
-                    {stats.length > 0 && (
+                    {stats?.length > 0 && (
                         <div className="grid grid-flow-col auto-cols-fr gap-3 pt-3 border-t border-default text-center">
                             {stats.map((item, idx) => (
                                 <div key={idx}>

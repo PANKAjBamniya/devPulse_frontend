@@ -15,6 +15,10 @@ import { useMeQuery } from "./feature/api/authApiSlice";
 import { useEffect } from "react";
 import { setUser } from "./feature/auth/authSlice";
 import { useDispatch } from "react-redux";
+import Post from "./pages/post/Post";
+import Schedule from "./components/ui/Schedule";
+import CreatPost from "./pages/creatPost/CreatPost";
+import Settings from "./pages/settings/Settings";
 
 const App = () => {
   const dispatch = useDispatch()
@@ -44,6 +48,9 @@ const App = () => {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/platforms" element={<PlatForm />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/posts" element={<Post />} />
+            <Route path="/create" element={<CreatPost />} />
+            <Route path="/settings" element={<Settings />} />
           </Route>
         </Route>
         <Route path="*" element={<NotFound />} />

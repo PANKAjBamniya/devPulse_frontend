@@ -6,7 +6,7 @@ import { useAuth } from "../../context/authContext";
 import Loader from "../../components/commn/Loader";
 
 
-const LinkedinConnect = () => {
+const Login = () => {
 
     const { user, loading } = useAuth();
     const navigate = useNavigate()
@@ -17,6 +17,7 @@ const LinkedinConnect = () => {
             client_id: import.meta.env.VITE_LINKEDIN_CLIENT_ID,
             redirect_uri: 'http://localhost:3000/api/linkedin/callback',
             scope: 'openid profile email w_member_social'
+
         })
 
         window.location.href = `https://www.linkedin.com/oauth/v2/authorization?${params}`
@@ -71,4 +72,4 @@ const LinkedinConnect = () => {
     )
 }
 
-export default LinkedinConnect
+export default Login
