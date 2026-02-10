@@ -1,51 +1,56 @@
-import { useAuth } from "../../context/authContext";
-import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+
 import Header from "../../components/commn/Header";
 import Schedule from "../../components/ui/Schedule";
 import { useGetMyScheduleQuery } from "../../feature/api/scheduleApi";
+import { useMeQuery } from "../../feature/api/authApiSlice";
 import { getCountdown, getNextPostDate } from "../../utils/scheduleHelpers";
 import Loader from "../../components/commn/Loader";
 import Hero from "../../components/commn/Hero";
 import AllPost from "../../components/ui/AllPost";
 
+
 const Home = () => {
+    const navigate = useNavigate();
+    const [schedulePage, setSchedulePage] = useState(false);
 
-    const { data: scheduleRes, isLoading: scheduleLoading } = useGetMyScheduleQuery()
-    const schedule = scheduleRes?.data
+    const user = useSelector((state) => state.auth.user);
+    const token = localStorage.getItem("token");
 
-    const nextPostDate = getNextPostDate(schedule)
-    const countdown = getCountdown(nextPostDate)
+    // 🔐 Get logged-in user (RTK)
+    const { isLoading: meLoading } = useMeQuery(undefined, {
+        skip: !token,
+    });
 
-    const Navigate = useNavigate()
+    // 📅 Schedule
+    const { data: scheduleRes, isLoading: scheduleLoading } =
+        useGetMyScheduleQuery();
+    const schedule = scheduleRes?.data;
 
-    const { user, loading, getUser } = useAuth();
-    const [schedulePage, setSchedulePage] = useState(false)
+    const nextPostDate = getNextPostDate(schedule);
+    const countdown = getCountdown(nextPostDate);
 
+    // 🔁 Redirect if not authenticated
     useEffect(() => {
-        if (!user) {
-            Navigate("/login")
-            getUser();
+        if (!token && !meLoading) {
+            navigate("/login");
         }
-    }, []);
+    }, [token, meLoading]);
 
-    if (loading || !user) {
+    if (meLoading || !user) {
         return <Loader />;
     }
 
-
     return (
-        <div className="min-h-screen bg-app text-white pb-24 ">
-            {/*  HEADER  */}
+        <div className="min-h-screen bg-app text-white pb-24">
             <Header user={user} />
 
-            {/*  AUTOPILOT CARD  */}
             <Hero setSchedulePage={setSchedulePage} schedule={schedule} />
 
-
-            {/* ---------- OVERVIEW ---------- */}
             <div className="px-4 mt-8 grid grid-cols-2 gap-5">
-                <div className="bg-zinc-900 rounded-xl p-4 border border-zinc-800 ">
+                <div className="bg-zinc-900 rounded-xl p-4 border border-zinc-800">
                     <p className="text-xs text-gray-400 mb-2">NEXT POST</p>
 
                     <h4 className="font-semibold text-white">
@@ -64,7 +69,6 @@ const Home = () => {
                 </div>
 
                 <div className="bg-zinc-900 rounded-xl p-5 border border-zinc-800 space-y-3">
-                    {/* Header */}
                     <div className="flex justify-between items-center">
                         <p className="text-xs text-gray-400 tracking-wide">
                             ACTIVE CATEGORY
@@ -75,17 +79,15 @@ const Home = () => {
                         </span>
                     </div>
 
-                    {/* Category */}
                     <h4 className="font-semibold text-lg text-white">
-                        {schedule?.categories?.map((c) => c.name).join(", ") || "—"}
+                        {schedule?.categories?.map((c) => c.name).join(", ") ||
+                            "—"}
                     </h4>
 
-                    {/* Description */}
-                    <p className="text-sm text-gray-400 leading-relaxed line-clamp-3">
+                    <p className="text-sm text-gray-400 line-clamp-3">
                         {schedule?.description || "No description provided"}
                     </p>
 
-                    {/* Footer */}
                     <div className="pt-2 border-t border-zinc-800 text-xs text-gray-500">
                         Timezone: {schedule?.timezone || "—"}
                     </div>
@@ -94,9 +96,9 @@ const Home = () => {
 
             <AllPost />
 
-
-            {schedulePage && <Schedule setSchedulePage={setSchedulePage} />}
-
+            {schedulePage && (
+                <Schedule setSchedulePage={setSchedulePage} />
+            )}
         </div>
     );
 };
