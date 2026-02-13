@@ -1,28 +1,14 @@
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-
 import Header from "../../components/commn/Header";
-import Schedule from "../../components/ui/Schedule";
 import { useGetMyScheduleQuery } from "../../feature/api/scheduleApi";
-import { useMeQuery } from "../../feature/api/authApiSlice";
 import { getCountdown, getNextPostDate } from "../../utils/scheduleHelpers";
-import Loader from "../../components/commn/Loader";
 import Hero from "../../components/commn/Hero";
-import AllPost from "../../components/ui/AllPost";
+
 
 
 const Home = () => {
-    const navigate = useNavigate();
-    const [schedulePage, setSchedulePage] = useState(false);
 
     const user = useSelector((state) => state.auth.user);
-    const token = localStorage.getItem("token");
-
-    // 🔐 Get logged-in user (RTK)
-    const { isLoading: meLoading } = useMeQuery(undefined, {
-        skip: !token,
-    });
 
     // 📅 Schedule
     const { data: scheduleRes, isLoading: scheduleLoading } =
@@ -32,22 +18,11 @@ const Home = () => {
     const nextPostDate = getNextPostDate(schedule);
     const countdown = getCountdown(nextPostDate);
 
-    // 🔁 Redirect if not authenticated
-    useEffect(() => {
-        if (!token && !meLoading) {
-            navigate("/login");
-        }
-    }, [token, meLoading]);
-
-    if (meLoading || !user) {
-        return <Loader />;
-    }
-
     return (
         <div className="min-h-screen bg-app text-white pb-24">
             <Header user={user} />
 
-            <Hero setSchedulePage={setSchedulePage} schedule={schedule} />
+            <Hero schedule={schedule} />
 
             <div className="px-4 mt-8 grid grid-cols-2 gap-5">
                 <div className="bg-zinc-900 rounded-xl p-4 border border-zinc-800">
@@ -93,12 +68,6 @@ const Home = () => {
                     </div>
                 </div>
             </div>
-
-            <AllPost />
-
-            {schedulePage && (
-                <Schedule setSchedulePage={setSchedulePage} />
-            )}
         </div>
     );
 };

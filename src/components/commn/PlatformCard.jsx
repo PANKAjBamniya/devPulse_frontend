@@ -2,7 +2,9 @@ import {
     FiCheckCircle,
     FiXCircle,
     FiTrash2,
+    FiClock
 } from "react-icons/fi";
+
 
 const PlatformCard = ({
     name,
@@ -11,56 +13,72 @@ const PlatformCard = ({
     connected = false,
     user,
     stats = [],
+    hasSchedule = false,
+    scheduleTime,
+    scheduleData,
     onConnect,
     onDisconnect,
+    onSchedule
 }) => {
+
     const styles = {
         iconBg: { backgroundColor: `${color}20`, color },
         avatarBg: { backgroundColor: color },
         buttonBg: {
             background: `linear-gradient(135deg, ${color}, ${color}CC)`,
         },
-        glow: { boxShadow: `0 12px 40px ${color}25` },
+        glow: { boxShadow: `0 12px 40px ${color}20` },
     };
+
+
 
     return (
         <div
             className="
-                relative rounded-2xl p-5 space-y-4
-                bg-card/70 backdrop-blur-xl
-                border border-default
+                rounded-2xl p-6 space-y-6
+                bg-[#111827]
+                border border-zinc-800
                 transition-all duration-300
                 hover:-translate-y-1 hover:shadow-xl
             "
             style={styles.glow}
         >
+
             {/* Header */}
-            <div className="flex items-center gap-3">
-                <div
-                    className="w-12 h-12 rounded-xl center"
-                    style={styles.iconBg}
-                >
-                    <Icon size={22} />
+            <div className="flex items-center justify-between">
+
+                <div className="flex items-center gap-4">
+
+                    <div
+                        className="w-12 h-12 rounded-xl flex items-center justify-center"
+                        style={styles.iconBg}
+                    >
+                        <Icon size={22} />
+                    </div>
+
+                    <div>
+                        <h3 className="font-semibold text-base">{name}</h3>
+
+                        {connected ? (
+                            <span className="flex items-center gap-1 text-green-400 text-xs mt-1">
+                                <FiCheckCircle size={14} />
+                                Connected
+                            </span>
+                        ) : (
+                            <span className="flex items-center gap-1 text-red-400 text-xs mt-1">
+                                <FiXCircle size={14} />
+                                Not Connected
+                            </span>
+                        )}
+                    </div>
                 </div>
 
-                <div>
-                    <h3 className="font-semibold">{name}</h3>
-
-                    {connected ? (
-                        <span className="badge-success flex items-center gap-1 mt-1">
-                            <FiCheckCircle size={14} /> Connected
-                        </span>
-                    ) : (
-                        <span className="badge-error flex items-center gap-1 mt-1">
-                            <FiXCircle size={14} /> Not Connected
-                        </span>
-                    )}
-                </div>
             </div>
 
             {/* Connected User Info */}
             {connected && user && (
-                <div className="bg-card-hover rounded-xl p-4 space-y-3">
+                <div className="bg-zinc-900/60 rounded-xl p-4 space-y-4 border border-zinc-800">
+
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full overflow-hidden">
                             {user.avatar ? (
@@ -71,7 +89,7 @@ const PlatformCard = ({
                                 />
                             ) : (
                                 <div
-                                    className="w-full h-full center text-white font-semibold"
+                                    className="w-full h-full flex items-center justify-center text-white font-semibold"
                                     style={styles.avatarBg}
                                 >
                                     {user.name?.[0] || "U"}
@@ -79,17 +97,33 @@ const PlatformCard = ({
                             )}
                         </div>
 
-                        <p className="text-sm font-medium">{user.name}</p>
+                        <div>
+                            <p className="text-sm font-medium">
+                                {user.name}
+                            </p>
+
+                            {/* Schedule Badge */}
+                            {hasSchedule && (
+                                <div className="flex items-center gap-1 text-blue-400 text-xs mt-1">
+                                    <FiClock size={12} />
+                                    Scheduled at {scheduleTime}
+                                    <span className="ml-2 text-zinc-400">
+                                        ({scheduleData?.frequency})
+                                    </span>
+                                </div>
+                            )}
+
+                        </div>
                     </div>
 
                     {stats?.length > 0 && (
-                        <div className="grid grid-flow-col auto-cols-fr gap-3 pt-3 border-t border-default text-center">
+                        <div className="grid grid-cols-3 gap-4 pt-4 border-t border-zinc-800 text-center">
                             {stats.map((item, idx) => (
                                 <div key={idx}>
                                     <p className="text-sm font-semibold">
                                         {item.value}
                                     </p>
-                                    <p className="text-xs text-muted">
+                                    <p className="text-xs text-gray-400">
                                         {item.label}
                                     </p>
                                 </div>
@@ -99,31 +133,48 @@ const PlatformCard = ({
                 </div>
             )}
 
-            {/* Actions */}
-            {connected ? (
-                <button
-                    onClick={onDisconnect}
-                    className="
-                        w-full flex items-center justify-center gap-2
-                        rounded-xl py-2.5 font-semibold
-                        bg-red-500/15 text-red-400
-                        hover:bg-red-500/25 transition
-                    "
-                >
-                    <FiTrash2 /> Disconnect
-                </button>
-            ) : (
+            {/* Action Section */}
+            {!connected ? (
                 <button
                     onClick={onConnect}
                     style={styles.buttonBg}
                     className="
-                        w-full py-2.5 rounded-xl font-semibold text-white
+                        w-full py-3 rounded-xl font-semibold text-white
                         shadow-lg hover:shadow-xl transition
                     "
                 >
-                    Connect with {name}
+                    Connect {name}
                 </button>
+            ) : (
+                <div className="flex gap-3">
+
+                    {/* Schedule Button */}
+                    <button
+                        onClick={onSchedule}
+                        className="
+                            flex-1 py-3 rounded-xl font-semibold
+                            bg-blue-600 hover:bg-blue-700
+                            transition text-white
+                        "
+                    >
+                        {hasSchedule ? "Update Schedule" : "Set Schedule"}
+                    </button>
+
+                    {/* Disconnect Button */}
+                    <button
+                        onClick={onDisconnect}
+                        className="
+                            px-4 rounded-xl
+                            bg-red-500/15 text-red-400
+                            hover:bg-red-500/25 transition
+                            flex items-center justify-center
+                        "
+                    >
+                        <FiTrash2 size={18} />
+                    </button>
+                </div>
             )}
+
         </div>
     );
 };

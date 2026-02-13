@@ -64,16 +64,10 @@ export const platformMeta = {
             "Connect Twitter to schedule tweets and track real-time engagement.",
         icon: FiTwitter,
         color: "#38BDF8",
-        authType: "dummy",
-    },
-
-    instagram: {
-        name: "Instagram",
-        description:
-            "Connect Instagram to publish reels, posts, and monitor analytics.",
-        icon: FiInstagram,
-        color: "#EC4899",
-        authType: "dummy",
+        authType: "oauth",
+        authUrl: () => {
+            return "http://localhost:3000/api/auth/twitter";
+        },
     },
 
     facebook: {
@@ -82,6 +76,34 @@ export const platformMeta = {
             "Connect your Facebook page to automate posting and insights.",
         icon: FiFacebook,
         color: "#1D4ED8",
+        authType: "oauth",
+        authUrl: (userId) => {
+            const state = JSON.stringify({
+                userId,
+                nonce: crypto.randomUUID(),
+            });
+
+            sessionStorage.setItem("facebook_oauth_state", state);
+
+            const params = new URLSearchParams({
+                client_id: import.meta.env.VITE_FACEBOOK_APP_ID,
+                redirect_uri: "http://localhost:3000/api/facebook/callback",
+                scope: "pages_manage_posts,pages_read_engagement,pages_show_list",
+                response_type: "code",
+                state,
+            });
+
+
+            return `https://www.facebook.com/v19.0/dialog/oauth?${params}`;
+        }
+    },
+
+    instagram: {
+        name: "Instagram",
+        description:
+            "Connect Instagram to publish reels, posts, and monitor analytics.",
+        icon: FiInstagram,
+        color: "#EC4899",
         authType: "dummy",
     },
 };

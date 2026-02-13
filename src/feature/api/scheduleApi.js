@@ -3,15 +3,23 @@ import { apiSlice } from "./apiSlice"
 export const scheduleApi = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
 
-        getMySchedule: builder.query({
+        getMyAllSchedules: builder.query({
             query: () => "/schedule/me",
             providesTags: ["Schedule"],
         }),
+
+
+        getMySchedule: builder.query({
+            query: (socialAccountId) => `/schedule/${socialAccountId}`,
+            providesTags: ["Schedule"],
+        }),
+
 
         getMyAllPost: builder.query({
             query: () => "/posts/",
             providesTags: ["Post"],
         }),
+
 
         createSchedule: builder.mutation({
             query: (payload) => ({
@@ -22,6 +30,7 @@ export const scheduleApi = apiSlice.injectEndpoints({
             invalidatesTags: ["Schedule"],
         }),
 
+
         updateSchedule: builder.mutation({
             query: (payload) => ({
                 url: "/schedule",
@@ -31,11 +40,11 @@ export const scheduleApi = apiSlice.injectEndpoints({
             invalidatesTags: ["Schedule"],
         }),
 
-
         toggleSchedule: builder.mutation({
-            query: () => ({
+            query: (payload) => ({
                 url: "/schedule/toggle",
                 method: "PATCH",
+                body: payload,
             }),
             invalidatesTags: ["Schedule"],
         }),
@@ -47,5 +56,6 @@ export const {
     useCreateScheduleMutation,
     useUpdateScheduleMutation,
     useToggleScheduleMutation,
-    useGetMyAllPostQuery
+    useGetMyAllPostQuery,
+    useGetMyAllSchedulesQuery
 } = scheduleApi

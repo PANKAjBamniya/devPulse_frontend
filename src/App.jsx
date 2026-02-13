@@ -31,6 +31,7 @@ const App = () => {
     if (data?.user) {
       dispatch(setUser(data.user));
     }
+
   }, [data]);
 
 

@@ -1,45 +1,26 @@
-import React, { useEffect, useState } from "react"
+import { useState, useEffect } from "react"
 import { useDeleteCategoryMutation, useGetCategoriesQuery } from "../../feature/api/categoryApi"
 import CategoryModel from "./CategoryModel"
 import { FiX } from "react-icons/fi"
 import { useCreateScheduleMutation, useGetMyScheduleQuery, useUpdateScheduleMutation } from "../../feature/api/scheduleApi"
 import { toast } from "react-toastify"
 
-export default function Schedule({ setSchedulePage }) {
+export default function Schedule({ setSchedulePage, platformKey, scheduleData }) {
 
-    const { data: scheduleRes } = useGetMyScheduleQuery()
-    const schedule = scheduleRes?.data
+    const { data: categoryRes } = useGetCategoriesQuery()
+    const schedule = scheduleData
 
-    const {
-        data: categoryRes,
-        isLoading: categoryLoading,
-        isError: categoryError,
-    } = useGetCategoriesQuery()
 
-    const [
-        createSchedule,
-        {
-            isLoading: scheduleLoading,
-            isSuccess: scheduleSuccess,
-            isError: scheduleError,
-            error: scheduleErrorData,
-        },
-    ] = useCreateScheduleMutation()
-
-    const [
-        updateSchedule,
-        {
-            isLoading: scheduleUpLoading,
-            isSuccess: scheduleUpSuccess,
-        },
-    ] = useUpdateScheduleMutation()
-
-    const [showCategoryModal, setShowCategoryModal] = useState(false)
+    const [createSchedule] = useCreateScheduleMutation()
+    const [updateSchedule] = useUpdateScheduleMutation()
     const [deleteCategory] = useDeleteCategoryMutation()
+
     const categories = categoryRes?.data || []
 
+    const [showCategoryModal, setShowCategoryModal] = useState(false)
+
     const [selected, setSelected] = useState([])
-    const [frequency, setFrequency] = useState("Daily")
+    const [frequency, setFrequency] = useState("daily")
     const [description, setDescription] = useState("")
 
     const [time, setTime] = useState({
@@ -47,6 +28,15 @@ export default function Schedule({ setSchedulePage }) {
         minute: "15",
         period: "AM",
     })
+
+    const convertTo24Hour = (hour, minute, period) => {
+        let h = parseInt(hour)
+
+        if (period === "PM" && h !== 12) h += 12
+        if (period === "AM" && h === 12) h = 0
+
+        return `${String(h).padStart(2, "0")}:${minute}`
+    }
 
 
     const toggleCategory = (cat) => {
@@ -61,11 +51,8 @@ export default function Schedule({ setSchedulePage }) {
     const handleSaveSchedule = async () => {
         try {
             const payload = {
-                time: {
-                    hour: time.hour,
-                    minute: time.minute,
-                    period: time.period,
-                },
+                socialAccount: platformKey,
+                time: convertTo24Hour(time.hour, time.minute, time.period),
                 frequency,
                 categories: categories
                     .filter((c) => selected.includes(c.name))
@@ -74,17 +61,18 @@ export default function Schedule({ setSchedulePage }) {
             }
 
             if (schedule?._id) {
-                // UPDATE
-                await updateSchedule(payload).unwrap()
+                await updateSchedule({
+                    id: schedule._id,
+                    ...payload
+                }).unwrap()
+
                 toast.success("Schedule updated successfully ✨")
-                setSchedulePage(false)
             } else {
-                // CREATE
                 await createSchedule(payload).unwrap()
                 toast.success("Schedule created successfully 🚀")
-                setSchedulePage(false)
-
             }
+
+            setSchedulePage(false)
 
         } catch (err) {
             toast.error(err?.data?.message || "Failed to save schedule")
@@ -93,30 +81,33 @@ export default function Schedule({ setSchedulePage }) {
 
 
 
-
     useEffect(() => {
-        if (!schedule) return
+        if (schedule) {
+            setFrequency(schedule.frequency || "daily")
+            setDescription(schedule.description || "")
 
-        setTime({
-            hour: schedule.time.hour,
-            minute: schedule.time.minute,
-            period: schedule.time.period,
-        })
+            if (schedule.time) {
+                const [hour, minute] = schedule.time.split(":")
+                const h = parseInt(hour)
 
-        setFrequency(schedule.frequency)
-        setDescription(schedule.description || "")
+                setTime({
+                    hour: String(h % 12 || 12).padStart(2, "0"),
+                    minute,
+                    period: h >= 12 ? "PM" : "AM"
+                })
+            }
 
-        setSelected(
-            schedule.categories.map((cat) => cat.name)
-        )
+            if (schedule.categories?.length > 0) {
+                setSelected(schedule.categories.map(cat => cat.name))
+            }
+        }
     }, [schedule])
 
 
 
-
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-            <div className="bg-gradient-to-b from-[#0b1220] to-[#05080f] rounded-3xl shadow-2xl border border-zinc-800 overflow-hidden relative">
+        <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/60 p-4  w-full">
+            <div className="bg-gradient-to-b  from-[#0b1220] to-[#05080f] rounded-3xl shadow-2xl border border-zinc-800 overflow-hidden relative w-3xl">
 
                 {/* Header */}
                 <div className="p-5 border-b border-zinc-800 flex justify-between items-center">
@@ -138,15 +129,14 @@ export default function Schedule({ setSchedulePage }) {
 
                 {/* Content */}
                 <div className="p-5 space-y-6 overflow-y-auto pb-28">
+
                     {/* Posting Time */}
                     <section>
                         <h2 className="text-white font-medium mb-3">Posting Time</h2>
-
                         <div className="bg-[#0e1626] rounded-xl p-4 flex gap-3 justify-between items-center">
 
-                            {/* Hour */}
                             <select
-                                value={time?.hour}
+                                value={time.hour}
                                 onChange={(e) =>
                                     setTime((prev) => ({ ...prev, hour: e.target.value }))
                                 }
@@ -154,34 +144,26 @@ export default function Schedule({ setSchedulePage }) {
                             >
                                 {Array.from({ length: 12 }, (_, i) => {
                                     const val = String(i + 1).padStart(2, "0")
-                                    return (
-                                        <option key={val} value={val}>
-                                            {val}
-                                        </option>
-                                    )
+                                    return <option key={val} value={val}>{val}</option>
                                 })}
                             </select>
 
                             <span className="text-blue-400 text-xl">:</span>
 
-                            {/* Minute */}
                             <select
-                                value={time?.minute}
+                                value={time.minute}
                                 onChange={(e) =>
                                     setTime((prev) => ({ ...prev, minute: e.target.value }))
                                 }
                                 className="bg-[#1b2a45] px-4 py-3 rounded-xl text-white outline-none"
                             >
                                 {["00", "15", "30", "45"].map((m) => (
-                                    <option key={m} value={m}>
-                                        {m}
-                                    </option>
+                                    <option key={m} value={m}>{m}</option>
                                 ))}
                             </select>
 
-                            {/* AM / PM */}
                             <select
-                                value={time?.period}
+                                value={time.period}
                                 onChange={(e) =>
                                     setTime((prev) => ({ ...prev, period: e.target.value }))
                                 }
@@ -197,17 +179,17 @@ export default function Schedule({ setSchedulePage }) {
                     <section>
                         <h2 className="text-white font-medium mb-3">Frequency</h2>
                         <div className="bg-[#0e1626] rounded-xl flex">
-                            {["Daily", "Alternate"].map((item) => (
+                            {["daily", "alternate"].map((item) => (
                                 <button
                                     key={item}
                                     onClick={() => setFrequency(item)}
                                     className={`flex-1 py-3 text-sm rounded-xl transition
-                    ${frequency === item
+                                        ${frequency === item
                                             ? "bg-[#1b2a45] text-white"
                                             : "text-zinc-400"
                                         }`}
                                 >
-                                    {item}
+                                    {item.charAt(0).toUpperCase() + item.slice(1)}
                                 </button>
                             ))}
                         </div>
@@ -219,6 +201,7 @@ export default function Schedule({ setSchedulePage }) {
                             <h2 className="text-white font-medium mb-3">
                                 Content Categories
                             </h2>
+
                             <button
                                 onClick={() => setShowCategoryModal(true)}
                                 className="text-sm text-blue-400 hover:text-blue-300"
@@ -227,44 +210,20 @@ export default function Schedule({ setSchedulePage }) {
                             </button>
                         </div>
 
-
-                        {categoryLoading && (
-                            <p className="text-sm text-zinc-400 ml-2">
-                                Loading categories...
-                            </p>
-                        )}
-
-                        {categoryError && (
-                            <p className="text-sm text-red-400 ml-2">
-                                Failed to load categories
-                            </p>
-                        )}
-
-                        {!categoryLoading && categories.length === 0 && (
-                            <p className="text-sm text-red-500 ml-2">
-                                Please add categories first
-                            </p>
-                        )}
-
                         <div className="flex flex-wrap gap-3">
                             {categories.map((cat) => (
                                 <div
                                     key={cat._id}
                                     className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm border transition
-        ${selected.includes(cat.name)
+                                        ${selected.includes(cat.name)
                                             ? "border-blue-500 text-blue-400 bg-blue-500/10"
                                             : "border-zinc-700 text-zinc-400"
                                         }`}
                                 >
-
-                                    <button
-                                        onClick={() => toggleCategory(cat.name)}
-                                        className="focus:outline-none"
-                                    >
+                                    <button onClick={() => toggleCategory(cat.name)}>
                                         {cat.name}
                                     </button>
 
-                                    {/* Delete icon */}
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation()
@@ -279,31 +238,41 @@ export default function Schedule({ setSchedulePage }) {
                         </div>
                     </section>
 
-
                     {/* Description */}
                     <section>
-                        <h2 className="text-white font-medium mb-2">
-                            Post Focus
-                        </h2>
+                        <div className="flex items-center justify-between mb-2">
+                            <h2 className="text-white font-medium">Post Focus</h2>
+                            <span className="text-xs text-zinc-500">
+                                Optional
+                            </span>
+                        </div>
 
                         <textarea
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            placeholder="e.g. React hooks best practices, common mistakes, interview tips..."
-                            rows={3}
-                            className="w-full bg-[#0e1626] border border-zinc-700 rounded-xl p-4 text-sm text-white outline-none resize-none focus:border-blue-500"
+                            rows={4}
+                            maxLength={200}
+                            placeholder="Enter topic focus e.g. React hooks best practices, common mistakes, interview tips..."
+                            className="
+            w-full bg-[#0e1626]
+            border border-zinc-700
+            rounded-xl p-4 text-sm text-white
+            outline-none resize-none
+            focus:border-blue-500 focus:ring-1 focus:ring-blue-500/40
+            transition-all
+        "
                         />
 
-                        <p className="text-xs text-zinc-500 mt-1">
-                            Optional — helps AI generate more specific & better content.
-                        </p>
+                        <div className="flex justify-between mt-1">
+                            <p className="text-xs text-zinc-500">
+                                Helps AI generate more targeted content.
+                            </p>
+                            <span className="text-xs text-zinc-500">
+                                {description.length}/200
+                            </span>
+                        </div>
                     </section>
 
-                    {/* Recommendation */}
-                    <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 text-sm text-blue-300">
-                        💡 Recommended: Posting Daily at <b>9:00 AM</b> yields
-                        <b> 34% higher engagement</b> for developer content.
-                    </div>
                 </div>
 
                 {/* Bottom Button */}
@@ -312,25 +281,19 @@ export default function Schedule({ setSchedulePage }) {
                         onClick={handleSaveSchedule}
                         disabled={selected.length === 0}
                         className={`w-full py-4 rounded-xl font-semibold transition
-    ${selected.length === 0
+                            ${selected.length === 0
                                 ? "bg-zinc-700 text-zinc-400 cursor-not-allowed"
                                 : "bg-blue-500 hover:bg-blue-600 text-white"
                             }`}
                     >
-                        {selected.length === 0
-                            ? "Select at least one category"
-                            : schedule?._id
-                                ? "Update Schedule ✓"
-                                : "Save Schedule ✓"}
+                        {schedule?._id ? "Update Schedule ✓" : "Save Schedule ✓"}
                     </button>
-
                 </div>
             </div>
-            {
-                showCategoryModal && (<CategoryModel setShowCategoryModal={setShowCategoryModal} />)
-            }
+
+            {showCategoryModal && (
+                <CategoryModel setShowCategoryModal={setShowCategoryModal} />
+            )}
         </div>
     )
 }
-
-

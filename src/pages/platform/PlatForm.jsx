@@ -5,9 +5,12 @@ import PlatformCard from "../../components/commn/PlatformCard";
 import { platformConfig } from "../../utils/platformConfig";
 import Modal from "../../components/commn/Model";
 import ConnectedModel from "../../components/ui/ConnectedModel";
+import Schedule from "../../components/ui/Schedule";
+import { useGetMyAllSchedulesQuery } from "../../feature/api/scheduleApi";
 
 const PlatForm = () => {
     const [activePlatform, setActivePlatform] = useState(null);
+    const [activeSchedulePlatform, setActiveSchedulePlatform] = useState(null);
 
     const { data, isLoading } = useMeQuery();
 
@@ -20,7 +23,16 @@ const PlatForm = () => {
     const getPlatformAccount = (platformKey) =>
         socialAccounts.find((acc) => acc.platform === platformKey);
 
-    if (isLoading) return null;
+
+    const { data: schedulesRes } = useGetMyAllSchedulesQuery();
+
+    const schedules = schedulesRes?.data || [];
+
+
+    const scheduleForPlatform = schedules.find(
+        (s) => s?.socialAccount?._id === activeSchedulePlatform
+    );
+
 
     return (
         <>
@@ -35,6 +47,10 @@ const PlatForm = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     {platformConfig.map((platform) => {
                         const account = getPlatformAccount(platform.key);
+
+                        const scheduleForPlatform = schedules.find(
+                            (sch) => sch.socialAccount?._id === account?._id
+                        );
 
                         return (
                             <PlatformCard
@@ -61,11 +77,20 @@ const PlatForm = () => {
                                         ]
                                         : null
                                 }
+
+
+                                hasSchedule={!!scheduleForPlatform}
+                                scheduleTime={scheduleForPlatform?.time}
+                                scheduleData={scheduleForPlatform}
+
                                 onConnect={() =>
                                     setActivePlatform(platform.key)
                                 }
                                 onDisconnect={() =>
                                     console.log("disconnect", platform.key)
+                                }
+                                onSchedule={() =>
+                                    setActiveSchedulePlatform(account?._id)
                                 }
                             />
                         );
@@ -81,6 +106,21 @@ const PlatForm = () => {
                     />
                 )}
             </Modal>
+
+            <Modal
+                open={!!activeSchedulePlatform}
+                onClose={() => setActiveSchedulePlatform(null)}
+            >
+                {activeSchedulePlatform && (
+                    <Schedule
+                        scheduleData={scheduleForPlatform}
+                        existingSchedule={scheduleForPlatform}
+                        platformKey={activeSchedulePlatform}
+                        setSchedulePage={() => setActiveSchedulePlatform(null)}
+                    />
+                )}
+            </Modal>
+
         </>
     );
 };

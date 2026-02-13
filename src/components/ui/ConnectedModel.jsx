@@ -9,7 +9,6 @@ const ConnectedModel = ({
 
 
     if (!data) return null;
-    const userId = useSelector((state) => state.auth.user?._id);
 
 
     const {
@@ -21,14 +20,28 @@ const ConnectedModel = ({
         authUrl,
     } = data;
 
+
+
+    const user = useSelector((state) => state.auth.user);
+    const userId = user._id
+
+
     const handleContinue = () => {
+        console.log("Clicked:", platformKey);
+        console.log("authType:", authType);
+        console.log("authUrl:", authUrl);
+
         if (authType === "oauth" && typeof authUrl === "function") {
-            window.location.href = authUrl(userId);
+            const url = authUrl(userId);
+            console.log("Redirecting to:", url);
+            window.location.href = url;
             return;
         }
 
+        console.log("No OAuth triggered");
         onClose();
     };
+
 
     return (
         <div className="space-y-6 text-center">
