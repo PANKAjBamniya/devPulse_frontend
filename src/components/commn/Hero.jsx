@@ -46,9 +46,8 @@ const Hero = () => {
 
 
     return (
-        <div className="p-6">
-            <div className="relative rounded-2xl overflow-hidden border border-zinc-800">
-
+        <div className=" md:p-6 lg:p-6">
+            <div className="relative md:rounded-2xl overflow-hidden border border-zinc-800">
                 <div
                     className="absolute inset-0 bg-cover bg-center scale-105"
                     style={{ backgroundImage: `url(${hero})` }}

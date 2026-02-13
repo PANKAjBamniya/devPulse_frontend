@@ -30,7 +30,7 @@ const HomeLayout = () => {
 
             <div className="flex-1 flex flex-col overflow-hidden">
 
-                <Header onMenuClick={() => setSidebarOpen(true)} />
+                <Header onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
 
                 <main className="flex-1 overflow-y-auto px-4 lg:px-6 py-6">
                     <Outlet />

@@ -22,7 +22,6 @@ const Home = () => {
         <div className="min-h-screen bg-app text-white pb-24">
             <Header />
             <Hero schedule={schedule} />
-
             <div className="px-4 mt-8 grid grid-cols-2 gap-5">
                 <div className="bg-zinc-900 rounded-xl p-4 border border-zinc-800">
                     <p className="text-xs text-gray-400 mb-2">NEXT POST</p>
