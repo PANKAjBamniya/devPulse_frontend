@@ -2,11 +2,19 @@ import { useState } from "react";
 import { FiMenu, FiMoreVertical, FiLogOut } from "react-icons/fi";
 import { CgProfile } from "react-icons/cg";
 import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo.png";
+import { clearUser } from "../../feature/auth/authSlice";
 
 const Header = ({ onMenuClick }) => {
     const user = useSelector((state) => state.auth.user);
+    const navigate = useNavigate()
+
+    const handleLogout = () => {
+        dispatch(clearUser());
+        navigate("/login");
+        onClose?.();
+    };
 
     return (
         <header className="sticky top-0 z-30 bg-app border-b border-default">
@@ -37,13 +45,23 @@ const Header = ({ onMenuClick }) => {
                 </div>
 
                 {/* Right */}
-                <div className="flex items-center gap-2 relative">
+                <div className="flex items-center gap-2 ">
                     <Link
                         to="/dashboard"
                         className="hidden sm:inline-block bg-card-hover px-5 py-4 rounded-lg text-sm bg-gray-800 font-bold"
                     >
                         Dashboard
                     </Link>
+
+                    <button
+                        onClick={handleLogout}
+                        className="flex items-center gap-3 px-4 py-4 rounded-xl
+                           text-sm font-medium text-red-400
+                        bg-red-500/10 transition hover:bg-red-700/50"
+                    >
+                        <FiLogOut className="w-5 h-5" />
+                        Logout
+                    </button>
                 </div>
             </div>
         </header>

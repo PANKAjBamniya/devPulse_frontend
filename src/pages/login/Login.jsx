@@ -9,8 +9,9 @@ import logo from "../../assets/logo.png";
 
 import { useLoginMutation } from "../../feature/api/authApiSlice";
 import { toast } from "react-toastify";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
+import { setUser } from "../../feature/auth/authSlice";
 
 
 const loginSchema = z.object({
@@ -21,6 +22,7 @@ const loginSchema = z.object({
 const Login = () => {
     const user = useSelector((state) => state.auth.user);
     const navigate = useNavigate();
+    const dispatch = useDispatch()
     const [login] = useLoginMutation();
 
     const {
@@ -36,6 +38,8 @@ const Login = () => {
             const res = await login(data).unwrap();
 
             localStorage.setItem("token", res.token);
+
+            dispatch(setUser(res.user));
 
             navigate("/");
             toast.success("Login successfully");
