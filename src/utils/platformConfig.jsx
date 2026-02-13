@@ -66,7 +66,7 @@ export const platformMeta = {
         color: "#38BDF8",
         authType: "oauth",
         authUrl: () => {
-            return "http://localhost:3000/api/auth/twitter";
+            return `${import.meta.env.VITE_API_URL}/api/twitter`;
         },
     },
 

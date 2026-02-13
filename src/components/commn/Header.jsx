@@ -1,9 +1,6 @@
-import { useState } from "react";
-import { FiMenu, FiMoreVertical, FiLogOut } from "react-icons/fi";
-import { CgProfile } from "react-icons/cg";
+import { FiMenu, FiLogOut } from "react-icons/fi";
 import { useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import logo from "../../assets/logo.png";
 import { clearUser } from "../../feature/auth/authSlice";
 
 const Header = ({ onMenuClick }) => {
@@ -25,7 +22,7 @@ const Header = ({ onMenuClick }) => {
                     {/* Mobile menu */}
                     <button
                         onClick={onMenuClick}
-                        className="lg:hidden p-2 rounded-lg bg-card-hover"
+                        className="lg:hidden p-2 rounded-lg bg-card-hover "
                     >
                         <FiMenu size={22} />
                     </button>
@@ -48,19 +45,18 @@ const Header = ({ onMenuClick }) => {
                 <div className="flex items-center gap-2 ">
                     <Link
                         to="/dashboard"
-                        className="hidden sm:inline-block bg-card-hover px-5 py-4 rounded-lg text-sm bg-gray-800 font-bold"
+                        className="sm:inline-block bg-card-hover px-5 py-4 rounded-lg text-sm bg-gray-800 font-bold"
                     >
                         Dashboard
                     </Link>
 
                     <button
                         onClick={handleLogout}
-                        className="flex items-center gap-3 px-4 py-4 rounded-xl
+                        className=" items-center gap-3 px-4 md:py-4 p-3 rounded-xl
                            text-sm font-medium text-red-400
-                        bg-red-500/10 transition hover:bg-red-700/50"
+                        bg-red-500/10 transition hover:bg-red-700/50 hidden sm:inline-block"
                     >
                         <FiLogOut className="w-5 h-5" />
-                        Logout
                     </button>
                 </div>
             </div>

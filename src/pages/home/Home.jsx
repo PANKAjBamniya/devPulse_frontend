@@ -20,8 +20,7 @@ const Home = () => {
 
     return (
         <div className="min-h-screen bg-app text-white pb-24">
-            <Header user={user} />
-
+            <Header />
             <Hero schedule={schedule} />
 
             <div className="px-4 mt-8 grid grid-cols-2 gap-5">
